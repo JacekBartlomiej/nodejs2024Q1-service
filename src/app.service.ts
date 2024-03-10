@@ -3,11 +3,13 @@ import { User } from './user/entities/user.entity';
 import { randomUUID } from 'crypto';
 import { Artist } from './artist/entities/artist.entity';
 import { Track } from './track/entities/track.entity';
+import { Album } from './album/entities/album.entity';
 
 export interface LocalDb {
   users: User[];
   artists: Artist[];
   tracks: Track[];
+  albums: Album[];
 }
 
 @Injectable()
@@ -25,6 +27,7 @@ export class AppService {
     ],
     artists: [],
     tracks: [],
+    albums: [],
   };
 
   getHello(): string {
