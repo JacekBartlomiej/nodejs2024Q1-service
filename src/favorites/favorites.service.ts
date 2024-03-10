@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFavoriteDto } from './dto/create-favorite.dto';
-import { UpdateFavoriteDto } from './dto/update-favorite.dto';
+import { CreateFavoriteTrackDto } from './dto/create-favorite-track.dto';
+import { CreateFavoriteAlbumDto } from './dto/create-favorite-album.dto';
+import { CreateFavoriteArtistDto } from './dto/create-favorite-artist.dto';
+import { localDb } from 'src/localDb';
 
 @Injectable()
 export class FavoritesService {
-  create(createFavoriteDto: CreateFavoriteDto) {
+  findAll() {
+    return localDb.favorites;
+  }
+
+  createTrack(id: string, createFavoriteTrackDto: CreateFavoriteTrackDto) {
     return 'This action adds a new favorite';
   }
 
-  findAll() {
-    return `This action returns all favorites`;
+  removeTrack(id: string) {
+    return `This action removes a #${id} favorite`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} favorite`;
+  createAlbum(id: string, createFavoriteAlbumDto: CreateFavoriteAlbumDto) {
+    return 'This action adds a new favorite';
   }
 
-  update(id: number, updateFavoriteDto: UpdateFavoriteDto) {
-    return `This action updates a #${id} favorite`;
+  removeAlbum(id: string) {
+    return `This action removes a #${id} favorite`;
   }
 
-  remove(id: number) {
+  createArtist(id: string, createFavoriteArtistDto: CreateFavoriteArtistDto) {
+    return 'This action adds a new favorite';
+  }
+
+  removeArtist(id: string) {
     return `This action removes a #${id} favorite`;
   }
 }

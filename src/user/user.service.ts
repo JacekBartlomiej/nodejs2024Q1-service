@@ -5,14 +5,11 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AppService, LocalDb } from 'src/app.service';
 import { randomUUID } from 'crypto';
+import { localDb } from 'src/localDb';
 
 @Injectable()
 export class UserService {
-  localDb: LocalDb = this.appService.localDb;
-  constructor(private appService: AppService) {}
-
   create(createUserDto: CreateUserDto) {
     const createdUser = {
       id: randomUUID(),
@@ -21,7 +18,7 @@ export class UserService {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-    this.localDb.users.push({
+    localDb.users.push({
       ...createdUser,
       password: createUserDto.password,
     });
@@ -29,11 +26,11 @@ export class UserService {
   }
 
   findAll() {
-    return this.localDb.users;
+    return localDb.users;
   }
 
   findOne(id: string) {
-    const user = this.localDb.users.find((user) => user.id === id);
+    const user = localDb.users.find((user) => user.id === id);
     if (user) {
       return user;
     } else {
@@ -42,18 +39,16 @@ export class UserService {
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
-    const userIndex = this.localDb.users.findIndex((user) => user.id === id);
+    const userIndex = localDb.users.findIndex((user) => user.id === id);
     if (userIndex > -1) {
-      if (
-        updateUserDto.oldPassword === this.localDb.users[userIndex].password
-      ) {
-        this.localDb.users[userIndex] = {
-          ...this.localDb.users[userIndex],
-          version: this.localDb.users[userIndex].version + 1,
+      if (updateUserDto.oldPassword === localDb.users[userIndex].password) {
+        localDb.users[userIndex] = {
+          ...localDb.users[userIndex],
+          version: localDb.users[userIndex].version + 1,
           updatedAt: Date.now(),
           password: updateUserDto.newPassword,
         };
-        const user = this.localDb.users[userIndex];
+        const user = localDb.users[userIndex];
         return {
           id: user.id,
           login: user.login,
@@ -70,11 +65,9 @@ export class UserService {
   }
 
   remove(id: string) {
-    const userIndex = this.localDb.users.findIndex((user) => user.id === id);
+    const userIndex = localDb.users.findIndex((user) => user.id === id);
     if (userIndex > -1) {
-      return (this.localDb.users = this.localDb.users.filter(
-        (user) => user.id !== id,
-      ));
+      return (localDb.users = localDb.users.filter((user) => user.id !== id));
     } else {
       throw new NotFoundException();
     }

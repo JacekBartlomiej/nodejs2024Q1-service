@@ -1,28 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { AppService, LocalDb } from 'src/app.service';
 import { randomUUID } from 'crypto';
+import { localDb } from 'src/localDb';
 
 @Injectable()
 export class AlbumService {
-  localDb: LocalDb = this.appService.localDb;
-  constructor(private appService: AppService) {}
   create(createAlbumDto: CreateAlbumDto) {
     const createdAlbum = {
       id: randomUUID(),
       ...createAlbumDto,
     };
-    this.localDb.albums.push(createdAlbum);
+    localDb.albums.push(createdAlbum);
     return createdAlbum;
   }
 
   findAll() {
-    return this.localDb.albums;
+    return localDb.albums;
   }
 
   findOne(id: string) {
-    const album = this.localDb.albums.find((album) => album.id === id);
+    const album = localDb.albums.find((album) => album.id === id);
     if (album) {
       return album;
     } else {
@@ -31,30 +29,44 @@ export class AlbumService {
   }
 
   update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    const albumIndex = this.localDb.albums.findIndex(
-      (album) => album.id === id,
-    );
+    const albumIndex = localDb.albums.findIndex((album) => album.id === id);
     if (albumIndex > -1) {
-      this.localDb.albums[albumIndex] = {
-        ...this.localDb.albums[albumIndex],
+      localDb.albums[albumIndex] = {
+        ...localDb.albums[albumIndex],
         ...updateAlbumDto,
       };
-      return this.localDb.albums[albumIndex];
+      return localDb.albums[albumIndex];
     } else {
       throw new NotFoundException();
     }
   }
 
   remove(id: string) {
-    const albumIndex = this.localDb.albums.findIndex(
-      (album) => album.id === id,
-    );
+    const albumIndex = localDb.albums.findIndex((album) => album.id === id);
     if (albumIndex > -1) {
-      return (this.localDb.albums = this.localDb.albums.filter(
+      console.log('remove');
+      this.removeAlbumFromTracks(id);
+      return (localDb.albums = localDb.albums.filter(
         (album) => album.id !== id,
       ));
     } else {
       throw new NotFoundException();
     }
+  }
+
+  private removeAlbumFromTracks(id: string): void {
+    console.log('removeAlbumFromTracks!', JSON.stringify(localDb.tracks));
+    localDb.tracks = localDb.tracks.map((track) => {
+      console.log('BAZ!', track.albumId, id);
+      if (track.albumId === id) {
+        console.log('TADADADA!');
+        return {
+          ...track,
+          albumId: null,
+        };
+      } else {
+        return track;
+      }
+    });
   }
 }
