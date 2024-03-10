@@ -44,11 +44,18 @@ export class TrackService {
   remove(id: string) {
     const trackIndex = localDb.tracks.findIndex((track) => track.id === id);
     if (trackIndex > -1) {
+      this.removeTrackFromFavorites(id);
       return (localDb.tracks = localDb.tracks.filter(
         (track) => track.id !== id,
       ));
     } else {
       throw new NotFoundException();
     }
+  }
+
+  private removeTrackFromFavorites(id: string) {
+    localDb.favorites.tracks = localDb.favorites.tracks.filter(
+      (favTrackId) => favTrackId !== id,
+    );
   }
 }

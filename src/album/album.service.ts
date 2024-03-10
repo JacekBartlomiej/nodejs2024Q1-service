@@ -44,8 +44,8 @@ export class AlbumService {
   remove(id: string) {
     const albumIndex = localDb.albums.findIndex((album) => album.id === id);
     if (albumIndex > -1) {
-      console.log('remove');
       this.removeAlbumFromTracks(id);
+      this.removeAlbumFromFavorites(id);
       return (localDb.albums = localDb.albums.filter(
         (album) => album.id !== id,
       ));
@@ -55,11 +55,8 @@ export class AlbumService {
   }
 
   private removeAlbumFromTracks(id: string): void {
-    console.log('removeAlbumFromTracks!', JSON.stringify(localDb.tracks));
     localDb.tracks = localDb.tracks.map((track) => {
-      console.log('BAZ!', track.albumId, id);
       if (track.albumId === id) {
-        console.log('TADADADA!');
         return {
           ...track,
           albumId: null,
@@ -68,5 +65,11 @@ export class AlbumService {
         return track;
       }
     });
+  }
+
+  private removeAlbumFromFavorites(id: string) {
+    localDb.favorites.albums = localDb.favorites.albums.filter(
+      (favAlbumId) => favAlbumId !== id,
+    );
   }
 }

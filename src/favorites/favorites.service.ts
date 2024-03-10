@@ -1,36 +1,84 @@
-import { Injectable } from '@nestjs/common';
-import { CreateFavoriteTrackDto } from './dto/create-favorite-track.dto';
-import { CreateFavoriteAlbumDto } from './dto/create-favorite-album.dto';
-import { CreateFavoriteArtistDto } from './dto/create-favorite-artist.dto';
+import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { localDb } from 'src/localDb';
 
 @Injectable()
 export class FavoritesService {
   findAll() {
-    return localDb.favorites;
+    const allFavs = Object.fromEntries(
+      Object.entries(localDb.favorites).map(([key, value]) => [
+        key,
+        value.map((id) => {
+          return localDb[key].find((item) => item.id === id);
+        }),
+      ]),
+    );
+    console.log(JSON.stringify(allFavs));
+    return allFavs;
   }
 
-  createTrack(id: string, createFavoriteTrackDto: CreateFavoriteTrackDto) {
-    return 'This action adds a new favorite';
+  addTrack(id: string) {
+    const trackIndex = localDb.tracks.findIndex((track) => track.id === id);
+    if (trackIndex > -1) {
+      return localDb.favorites.tracks.push(localDb.tracks[trackIndex].id);
+    } else {
+      throw new UnprocessableEntityException();
+    }
   }
 
   removeTrack(id: string) {
-    return `This action removes a #${id} favorite`;
+    const trackIndex = localDb.favorites.tracks.findIndex(
+      (trackId) => trackId === id,
+    );
+    if (trackIndex > -1) {
+      return (localDb.favorites.tracks = localDb.favorites.tracks.filter(
+        (trackId) => trackId !== id,
+      ));
+    } else {
+      throw new NotFoundException();
+    }
   }
 
-  createAlbum(id: string, createFavoriteAlbumDto: CreateFavoriteAlbumDto) {
-    return 'This action adds a new favorite';
+  addAlbum(id: string) {
+    const albumIndex = localDb.albums.findIndex((album) => album.id === id);
+    if (albumIndex > -1) {
+      return localDb.favorites.albums.push(localDb.albums[albumIndex].id);
+    } else {
+      throw new UnprocessableEntityException();
+    }
   }
 
   removeAlbum(id: string) {
-    return `This action removes a #${id} favorite`;
+    const albumIndex = localDb.favorites.albums.findIndex(
+      (albumId) => albumId === id,
+    );
+    if (albumIndex > -1) {
+      return (localDb.favorites.albums = localDb.favorites.albums.filter(
+        (albumId) => albumId !== id,
+      ));
+    } else {
+      throw new NotFoundException();
+    }
   }
 
-  createArtist(id: string, createFavoriteArtistDto: CreateFavoriteArtistDto) {
-    return 'This action adds a new favorite';
+  addArtist(id: string) {
+    const artistIndex = localDb.artists.findIndex((artist) => artist.id === id);
+    if (artistIndex > -1) {
+      return localDb.favorites.artists.push(localDb.artists[artistIndex].id);
+    } else {
+      throw new UnprocessableEntityException();
+    }
   }
 
   removeArtist(id: string) {
-    return `This action removes a #${id} favorite`;
+    const artistIndex = localDb.favorites.artists.findIndex(
+      (artistId) => artistId === id,
+    );
+    if (artistIndex > -1) {
+      return (localDb.favorites.artists = localDb.favorites.artists.filter(
+        (artistId) => artistId !== id,
+      ));
+    } else {
+      throw new NotFoundException();
+    }
   }
 }
