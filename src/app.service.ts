@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { User } from './user/entities/user.entity';
 import { randomUUID } from 'crypto';
 import { Artist } from './artist/entities/artist.entity';
+import { Track } from './track/entities/track.entity';
 
 export interface LocalDb {
   users: User[];
   artists: Artist[];
+  tracks: Track[];
 }
 
 @Injectable()
@@ -22,6 +24,7 @@ export class AppService {
       },
     ],
     artists: [],
+    tracks: [],
   };
 
   getHello(): string {
