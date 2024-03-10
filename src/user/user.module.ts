@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, ParseUUIDPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
+import { AppService } from 'src/app.service';
 
 @Module({
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, AppService, ParseUUIDPipe],
 })
 export class UserModule {}
