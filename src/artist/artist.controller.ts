@@ -13,18 +13,21 @@ import {
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import { Artist } from '@prisma/client';
 
 @Controller('artist')
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 
   @Post()
-  create(@Body(ValidationPipe) createArtistDto: CreateArtistDto) {
+  async create(
+    @Body(ValidationPipe) createArtistDto: CreateArtistDto,
+  ): Promise<Artist> {
     return this.artistService.create(createArtistDto);
   }
 
   @Get()
-  findAll() {
+  async findAll(): Promise<Artist[]> {
     return this.artistService.findAll();
   }
 

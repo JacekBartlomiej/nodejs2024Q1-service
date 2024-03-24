@@ -1,22 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { randomUUID } from 'crypto';
 import { localDb } from 'src/localDb';
+import { PrismaService } from 'src/prisma.service';
+import { Artist, Prisma } from '@prisma/client';
 
 @Injectable()
 export class ArtistService {
-  create(createArtistDto: CreateArtistDto) {
-    const createdArtist = {
-      id: randomUUID(),
-      ...createArtistDto,
-    };
-    localDb.artists.push(createdArtist);
-    return createdArtist;
+  constructor(private prisma: PrismaService) {}
+
+  async create(data: Prisma.ArtistCreateInput): Promise<Artist> {
+    return this.prisma.artist.create({
+      data,
+    });
   }
 
-  findAll() {
-    return localDb.artists;
+  async findAll(): Promise<Artist[]> {
+    return this.prisma.artist.findMany();
   }
 
   findOne(id: string) {
