@@ -1,61 +1,57 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTrackDto } from './dto/create-track.dto';
-import { UpdateTrackDto } from './dto/update-track.dto';
-import { randomUUID } from 'crypto';
-import { localDb } from 'src/localDb';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TrackService {
-  create(createTrackDto: CreateTrackDto) {
-    const createdTrack = {
-      id: randomUUID(),
-      ...createTrackDto,
-    };
-    localDb.tracks.push(createdTrack);
-    return createdTrack;
+  constructor(private prisma: PrismaService) {}
+
+  create(data: Prisma.TrackCreateInput) {
+    return this.prisma.track.create({
+      data,
+    });
   }
 
   findAll() {
-    return localDb.tracks;
+    return this.prisma.track.findMany();
   }
 
   findOne(id: string) {
-    const track = localDb.tracks.find((track) => track.id === id);
-    if (track) {
-      return track;
-    } else {
-      throw new NotFoundException();
-    }
+    return this.prisma.track.findUnique({
+      where: { id },
+    });
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
-    const trackIndex = localDb.tracks.findIndex((track) => track.id === id);
-    if (trackIndex > -1) {
-      localDb.tracks[trackIndex] = {
-        ...localDb.tracks[trackIndex],
-        ...updateTrackDto,
-      };
-      return localDb.tracks[trackIndex];
-    } else {
-      throw new NotFoundException();
-    }
+  update(id: string, data: Prisma.TrackUpdateInput) {
+    return this.prisma.artist.update({
+      where: {
+        id,
+      },
+      data,
+    });
   }
 
   remove(id: string) {
-    const trackIndex = localDb.tracks.findIndex((track) => track.id === id);
-    if (trackIndex > -1) {
-      this.removeTrackFromFavorites(id);
-      return (localDb.tracks = localDb.tracks.filter(
-        (track) => track.id !== id,
-      ));
-    } else {
-      throw new NotFoundException();
-    }
+    this.removeTrackFromFavorites(id);
+    return this.prisma.track.delete({
+      where: {
+        id,
+      },
+    });
   }
 
-  private removeTrackFromFavorites(id: string) {
-    localDb.favorites.tracks = localDb.favorites.tracks.filter(
-      (favTrackId) => favTrackId !== id,
-    );
+  private async removeTrackFromFavorites(id: string) {
+    const favorites = await this.prisma.getFavorites();
+    if (favorites) {
+      const updatedTrackIds = favorites.trackIds.filter(
+        (trackId) => trackId !== id,
+      );
+
+      // Update the Favorites record
+      await this.prisma.favorites.update({
+        where: { id: favorites.id },
+        data: { trackIds: updatedTrackIds },
+      });
+    }
   }
 }

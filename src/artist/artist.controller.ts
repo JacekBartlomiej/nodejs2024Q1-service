@@ -32,12 +32,12 @@ export class ArtistController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.artistService.findOne(id);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(ValidationPipe) updateArtistDto: UpdateArtistDto,
   ) {
@@ -46,7 +46,7 @@ export class ArtistController {
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.artistService.remove(id);
   }
 }
