@@ -1,5 +1,13 @@
 # Home Library Service
 
+## Contenerization
+
+Use command:
+
+docker compose up
+
+In order to run app and database
+
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
