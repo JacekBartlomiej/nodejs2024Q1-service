@@ -13,28 +13,31 @@ import {
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import { Artist } from '@prisma/client';
 
 @Controller('artist')
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 
   @Post()
-  create(@Body(ValidationPipe) createArtistDto: CreateArtistDto) {
+  async create(
+    @Body(ValidationPipe) createArtistDto: CreateArtistDto,
+  ): Promise<Artist> {
     return this.artistService.create(createArtistDto);
   }
 
   @Get()
-  findAll() {
+  async findAll(): Promise<Artist[]> {
     return this.artistService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.artistService.findOne(id);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(ValidationPipe) updateArtistDto: UpdateArtistDto,
   ) {
@@ -43,7 +46,7 @@ export class ArtistController {
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.artistService.remove(id);
   }
 }

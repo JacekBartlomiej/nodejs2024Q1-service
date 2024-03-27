@@ -3,86 +3,127 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { localDb } from 'src/localDb';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class FavoritesService {
-  findAll() {
-    const allFavs = Object.fromEntries(
-      Object.entries(localDb.favorites).map(([key, value]) => [
-        key,
-        value.map((id) => {
-          return localDb[key].find((item) => item.id === id);
-        }),
-      ]),
-    );
-    console.log(JSON.stringify(allFavs));
-    return allFavs;
+  constructor(private prisma: PrismaService) {}
+
+  async findAll() {
+    const favorites = await this.prisma.getFavorites();
+    if (favorites) {
+      return this.prisma.favorites.findMany();
+    }
   }
 
-  addTrack(id: string) {
-    const trackIndex = localDb.tracks.findIndex((track) => track.id === id);
-    if (trackIndex > -1) {
-      return localDb.favorites.tracks.push(localDb.tracks[trackIndex].id);
+  async addTrack(id: string) {
+    const favorites = await this.prisma.getFavorites();
+    if (favorites) {
+      const track = await this.prisma.track.findUnique({
+        where: { id },
+      });
+      if (track) {
+        return this.prisma.favorites.update({
+          where: { id: favorites.id },
+          data: { trackIds: { set: [...favorites.trackIds, track.id] } },
+        });
+      }
     } else {
       throw new UnprocessableEntityException();
     }
   }
 
-  removeTrack(id: string) {
-    const trackIndex = localDb.favorites.tracks.findIndex(
-      (trackId) => trackId === id,
-    );
-    if (trackIndex > -1) {
-      return (localDb.favorites.tracks = localDb.favorites.tracks.filter(
-        (trackId) => trackId !== id,
-      ));
-    } else {
-      throw new NotFoundException();
+  async removeTrack(id: string) {
+    const favorites = await this.prisma.getFavorites();
+    if (favorites) {
+      const track = await this.prisma.track.findUnique({
+        where: { id },
+      });
+      if (track) {
+        const updatedTrackIds = favorites.trackIds.filter(
+          (trackId) => trackId !== id,
+        );
+        return this.prisma.favorites.update({
+          where: { id: favorites.id },
+          data: { trackIds: { set: updatedTrackIds } },
+        });
+      } else {
+        throw new NotFoundException();
+      }
     }
   }
 
-  addAlbum(id: string) {
-    const albumIndex = localDb.albums.findIndex((album) => album.id === id);
-    if (albumIndex > -1) {
-      return localDb.favorites.albums.push(localDb.albums[albumIndex].id);
+  async addAlbum(id: string) {
+    const favorites = await this.prisma.getFavorites();
+    if (favorites) {
+      const track = await this.prisma.album.findUnique({
+        where: { id },
+      });
+      if (track) {
+        return this.prisma.favorites.update({
+          where: { id: favorites.id },
+          data: { albumIds: { set: [...favorites.albumIds, track.id] } },
+        });
+      }
     } else {
       throw new UnprocessableEntityException();
     }
   }
 
-  removeAlbum(id: string) {
-    const albumIndex = localDb.favorites.albums.findIndex(
-      (albumId) => albumId === id,
-    );
-    if (albumIndex > -1) {
-      return (localDb.favorites.albums = localDb.favorites.albums.filter(
-        (albumId) => albumId !== id,
-      ));
-    } else {
-      throw new NotFoundException();
+  async removeAlbum(id: string) {
+    const favorites = await this.prisma.getFavorites();
+    if (favorites) {
+      const track = await this.prisma.album.findUnique({
+        where: { id },
+      });
+      if (track) {
+        const updatedAlbumIds = favorites.albumIds.filter(
+          (albumId) => albumId !== id,
+        );
+        return this.prisma.favorites.update({
+          where: { id: favorites.id },
+          data: { albumIds: { set: updatedAlbumIds } },
+        });
+      } else {
+        throw new NotFoundException();
+      }
     }
   }
 
-  addArtist(id: string) {
-    const artistIndex = localDb.artists.findIndex((artist) => artist.id === id);
-    if (artistIndex > -1) {
-      return localDb.favorites.artists.push(localDb.artists[artistIndex].id);
+  async addArtist(id: string) {
+    const favorites = await this.prisma.getFavorites();
+    if (favorites) {
+      const track = await this.prisma.artist.findUnique({
+        where: { id },
+      });
+      if (track) {
+        return this.prisma.favorites.update({
+          where: { id: favorites.id },
+          data: { artistIds: { set: [...favorites.artistIds, track.id] } },
+        });
+      }
     } else {
       throw new UnprocessableEntityException();
     }
   }
 
-  removeArtist(id: string) {
-    const artistIndex = localDb.favorites.artists.findIndex(
-      (artistId) => artistId === id,
-    );
-    if (artistIndex > -1) {
-      return (localDb.favorites.artists = localDb.favorites.artists.filter(
-        (artistId) => artistId !== id,
-      ));
-    } else {
-      throw new NotFoundException();
+  async removeArtist(id: string) {
+    const favorites = await this.prisma.getFavorites();
+    if (favorites) {
+      const track = await this.prisma.artist.findUnique({
+        where: { id },
+      });
+      if (track) {
+        const updatedArtistIds = favorites.artistIds.filter(
+          (artistId) => artistId !== id,
+        );
+        return this.prisma.favorites.update({
+          where: { id: favorites.id },
+          data: { artistIds: { set: updatedArtistIds } },
+        });
+      } else {
+        throw new NotFoundException();
+      }
     }
   }
 }
